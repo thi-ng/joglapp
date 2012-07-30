@@ -1,0 +1,6 @@
+syntax: glob
+bin
+lib
+native
+target
+*.jar
