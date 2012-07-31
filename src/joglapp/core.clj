@@ -23,7 +23,7 @@
 (defn make-frame
   [& opts]
   (let[{:keys[title width height chrome canvas]
-        :or [title "joglapp" width 1280 height 720 chrome true]} (apply hash-map opts)
+        :or {title "joglapp" width 1280 height 720 chrome true}} (apply hash-map opts)
        frame (Frame. title)]
     (.setSize frame width height)
     (.add frame canvas)
