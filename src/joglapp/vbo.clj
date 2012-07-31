@@ -25,6 +25,19 @@
 		(.glDisableClientState GL2/GL_VERTEX_ARRAY)
 		(.glBindBuffer GL/GL_ARRAY_BUFFER 0)))
 
+(defn draw-tex-buffer
+  [^GL2 gl id count num stride uvidx draw-mode]
+  (doto gl
+    (.glBindBuffer GL/GL_ARRAY_BUFFER id)
+    (.glEnableClientState GL2/GL_VERTEX_ARRAY)
+    (.glVertexPointer num GL/GL_FLOAT (* stride Buffers/SIZEOF_FLOAT) 0)
+    (.glEnableClientState GL2/GL_TEXTURE_COORD_ARRAY)
+    (.glTexCoordPointer 2 GL/GL_FLOAT (* stride Buffers/SIZEOF_FLOAT) (* uvidx Buffers/SIZEOF_FLOAT))
+		(.glDrawArrays draw-mode 0 count)
+		(.glDisableClientState GL2/GL_TEXTURE_COORD_ARRAY)
+		(.glDisableClientState GL2/GL_VERTEX_ARRAY)
+		(.glBindBuffer GL/GL_ARRAY_BUFFER 0)))
+
 (defn make-buffer
   [^GL2 gl target data dynamic?]
   (let [buffers (int-array 1)]
