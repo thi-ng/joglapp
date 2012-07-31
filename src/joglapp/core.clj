@@ -11,14 +11,16 @@
     [toxi.math.matrix4x4 :as mat4]))
 
 (defn make-canvas
-  [profile]
-  (let [glcaps (GLCapabilities. (GLProfile/get profile))]
-    (doto ^GLCapabilities glcaps
-      (.setDoubleBuffered true)
-      (.setHardwareAccelerated true)
-      (.setSampleBuffers true)
-      (.setNumSamples 4))
-    (GLCanvas. glcaps (DefaultGLCapabilitiesChooser.) nil nil)))
+  ([]
+    (make-canvas GLProfile/GL2))
+  ([profile]
+    (let [glcaps (GLCapabilities. (GLProfile/get profile))]
+      (doto ^GLCapabilities glcaps
+        (.setDoubleBuffered true)
+        (.setHardwareAccelerated true)
+        (.setSampleBuffers true)
+        (.setNumSamples 4))
+      (GLCanvas. glcaps (DefaultGLCapabilitiesChooser.) nil nil))))
 
 (defn make-frame
   [& opts]
@@ -50,13 +52,36 @@
     (.start anim)
     {:frame frame :canvas canvas :anim anim}))
 
-(defn view-ortho
-  [^GLAutoDrawable drawable]
-  (let[^GL2 gl (.. drawable getGL getGL2)
-       w (.getWidth drawable)
-       h (.getHeight drawable)]
-    (doto gl
+(defn view-perspective
+  ([^GLAutoDrawable drawable fov near far eye target up]
+    (view-perspective
+      drawable
+      (-> (mat4/perspective fov (/ (.getWidth drawable) (.getHeight drawable)) near far)
+        math/matrix-transpose
+        mat4/->array)
+      (-> (mat4/look-at eye target up)
+        math/matrix-transpose
+        mat4/->array)))
+  ([^GLAutoDrawable drawable frustum lookat]
+    (doto ^GL2 (.. drawable getGL getGL2)
+      (.glViewport 0 0 (.getWidth drawable) (.getHeight drawable))
       (.glMatrixMode GLMatrixFunc/GL_PROJECTION)
-      (.glLoadMatrixd (-> (mat4/ortho 0 0 w h -1 1) math/matrix-transpose mat4/->array) 0)
+      (.glLoadMatrixd frustum 0)
       (.glMatrixMode GLMatrixFunc/GL_MODELVIEW)
-      (.glLoadIdentity))))
+      (.glLoadMatrixd lookat 0))
+    [frustum lookat]))
+
+(defn view-ortho2d
+  ([^GLAutoDrawable drawable]
+    (view-ortho2d drawable (mat4/->array mat4/M4X4-IDENTITY)))
+  ([^GLAutoDrawable drawable lookat]
+    (let[^GL2 gl (.. drawable getGL getGL2)
+         w (.getWidth drawable)
+         h (.getHeight drawable)
+         frustum (-> (mat4/ortho 0 0 w h -1 1) math/matrix-transpose mat4/->array)]
+      (doto gl
+        (.glMatrixMode GLMatrixFunc/GL_PROJECTION)
+        (.glLoadMatrixd frustum 0)
+        (.glMatrixMode GLMatrixFunc/GL_MODELVIEW)
+        (.glLoadMatrixd lookat 0))
+      [frustum lookat])))
