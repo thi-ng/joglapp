@@ -14,18 +14,18 @@
         (drop [^DropTargetDropEvent e] (drop e))))))
 
 (defn filedrop-wrapper
-  "Wraps a given drop target listener function to preprocess the DnD Transferable
-  and filters out any non-matching file types using given reg-exp. The listener
-  is only invoked once and passed the filtered file collection (if any).
-  If there're no matching files, the listener is not invoked.
-
-  The wrapper is meant to be used as partial."
-  [rexp listener ^DropTargetDropEvent e]
-  (let [tx (.getTransferable e)]
-    (try
-      (.acceptDrop e DnDConstants/ACTION_MOVE)
-      (let[paths (filter #(re-find rexp (.getName %)) (.getTransferData tx DataFlavor/javaFileListFlavor))]
-        (when-not (nil? (seq paths))
-          (doseq[p paths] (prn "file received:" p))
-          (listener paths)))
-      (catch UnsupportedFlavorException e (.printStackTrace e)))))
+  "Takes a map of regexp and handlers and returns a generic file drop target listener.
+  The listener preprocesses the DnD Transferable and calls handlers with any matching files.
+  If there're no matching files, no handler is not invoked."
+  [handlers]
+  (fn [^DropTargetDropEvent e]
+    (let [tx (.getTransferable e)]
+      (try
+        (.acceptDrop e DnDConstants/ACTION_MOVE)
+        (let[paths (.getTransferData tx DataFlavor/javaFileListFlavor)]
+          (doseq[[rexp handler] handlers]
+            (let[matching (filter #(re-find rexp (.getName %)) paths)]
+              (when-not (nil? (seq matching))
+                (doseq[p matching] (prn "matching file:" p))
+                (handler matching)))))
+          (catch UnsupportedFlavorException e (.printStackTrace e))))))
