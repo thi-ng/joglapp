@@ -1,7 +1,9 @@
 (ns joglapp.events
 	(:import
 		(java.awt Component)
-		(java.awt.event KeyAdapter KeyEvent MouseAdapter MouseEvent)))
+		(java.awt.event KeyAdapter KeyEvent
+                  MouseAdapter MouseEvent
+                  MouseWheelListener MouseWheelEvent)))
 
 (defn make-mouse-state [] (atom {:x 0 :y 0 :buttons #{}}))
 
@@ -19,7 +21,7 @@
 
 (defn add-mouselisteners
   [^Component component & state-listeners]
-  (let [{:keys[state moved dragged pressed released]
+  (let [{:keys[state moved dragged pressed released wheel]
          :or {state (make-mouse-state)}} (apply hash-map state-listeners)
         motion-proxy (proxy [MouseAdapter] []
                        (mouseMoved [^MouseEvent e]
@@ -30,17 +32,27 @@
                       (mousePressed [^MouseEvent e]
                                     (if-not (nil? pressed) (pressed (bean e) state)))
                       (mouseReleased [^MouseEvent e]
-                                     (if-not (nil? released) (released (bean e) state))))]
+                                     (if-not (nil? released) (released (bean e) state))))
+        wheel-proxy (proxy [MouseWheelListener] []
+                      (mouseWheelMoved [^MouseWheelEvent e]
+                                       (wheel (.getWheelRotation e) state)))]
     (.addMouseMotionListener component motion-proxy)
     (.addMouseListener component mouse-proxy)
-    (swap! state assoc :mouse-listeners {:mouse-motion motion-proxy :mouse mouse-proxy})
+    (if wheel
+      (do
+        (.addMouseWheelListener component wheel-proxy)
+        (swap! state assoc :mouse-listeners {:mouse-motion motion-proxy
+                                             :mouse mouse-proxy
+                                             :wheel wheel-proxy}))
+      (swap! state assoc :mouse-listeners {:mouse-motion motion-proxy :mouse mouse-proxy}))
     state))
 
 (defn remove-mouselisteners
   [^Component component & listeners]
-  (let [{:keys [mouse-motion mouse]} (if (map? (first listeners)) (first listeners) (apply hash-map listeners))]
+  (let [{:keys [mouse-motion mouse wheel]} (if (map? (first listeners)) (first listeners) (apply hash-map listeners))]
     (when mouse-motion (.removeMouseMotionListener component mouse-motion))
-    (when mouse (.removeMouseListener component mouse))))
+    (when mouse (.removeMouseListener component mouse))
+    (when wheel (.removeMouseWheelListener component wheel))))
 
 (defn add-keylisteners
   [^Component component & state-listeners]
