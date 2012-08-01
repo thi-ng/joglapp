@@ -5,14 +5,15 @@
     (java.nio FloatBuffer)))
 
 (defn update-buffer
-  [^GL2 gl target id data dynamic?]
+  [^GL2 gl id data dynamic?]
   (let [fbuf (FloatBuffer/wrap (float-array data))
         _ (.rewind fbuf)
         count (.remaining fbuf)
         size (* count Buffers/SIZEOF_FLOAT)]
     (doto gl
-      (.glBindBuffer target id)
-      (.glBufferData target size fbuf (if dynamic? GL/GL_DYNAMIC_DRAW GL/GL_STATIC_DRAW)))
+      (.glBindBuffer GL/GL_ARRAY_BUFFER id)
+      (.glBufferData GL/GL_ARRAY_BUFFER size fbuf (if dynamic? GL/GL_DYNAMIC_DRAW GL/GL_STATIC_DRAW))
+      (.glBindBuffer GL/GL_ARRAY_BUFFER 0))
     [id count]))
 
 (defn draw-buffer
@@ -39,10 +40,10 @@
 		(.glBindBuffer GL/GL_ARRAY_BUFFER 0)))
 
 (defn make-buffer
-  [^GL2 gl target data dynamic?]
+  [^GL2 gl data dynamic?]
   (let [buffers (int-array 1)]
     (.glGenBuffers gl 1 buffers 0)
-    (update-buffer gl target (aget buffers 0) data dynamic?)))
+    (update-buffer gl (aget buffers 0) data dynamic?)))
 
 (defn delete-buffer
   [^GL2 gl id]
