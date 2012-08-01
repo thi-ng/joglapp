@@ -1,16 +1,18 @@
 (ns joglapp.core
   (:import
-		(javax.media.opengl GL GL2 GLProfile GLCapabilities GLEventListener GLAutoDrawable DefaultGLCapabilitiesChooser)
-		(javax.media.opengl.awt GLCanvas)
-		(javax.media.opengl.fixedfunc GLMatrixFunc)
-		(com.jogamp.opengl.util FPSAnimator)
-		(com.jogamp.opengl.util.awt Screenshot TextRenderer)
-		(java.awt Frame Font))
+		[javax.media.opengl GL GL2 GLProfile GLCapabilities GLEventListener GLAutoDrawable DefaultGLCapabilitiesChooser]
+		[javax.media.opengl.awt GLCanvas]
+		[javax.media.opengl.fixedfunc GLMatrixFunc]
+		[com.jogamp.opengl.util FPSAnimator]
+		[com.jogamp.opengl.util.awt Screenshot TextRenderer]
+    [com.jogamp.opengl.util.texture Texture]
+    [com.jogamp.opengl.util.texture.awt AWTTextureIO]
+		[java.awt Frame Font])
   (:require
     [toxi.math.core :as math]
     [toxi.math.matrix4x4 :as mat4]))
 
-(defn make-canvas
+(defn ^GLAutoDrawable make-canvas
   ([]
     (make-canvas GLProfile/GL2))
   ([profile]
@@ -22,7 +24,7 @@
         (.setNumSamples 4))
       (GLCanvas. glcaps (DefaultGLCapabilitiesChooser.) nil nil))))
 
-(defn make-frame
+(defn ^Frame make-frame
   [& opts]
   (let[{:keys[title width height chrome canvas]
         :or {title "joglapp" width 1280 height 720 chrome true}} (apply hash-map opts)
@@ -32,6 +34,12 @@
     (when-not chrome (.setUndecorated frame true))
     (.show frame)
     frame))
+
+(defn ^Texture make-image-texture
+  ([img]
+    (make-image-texture img GLProfile/GL2))
+  ([img glprofile]
+    (AWTTextureIO/newTexture (GLProfile/get glprofile) img false)))
 
 (defn setup
   [& more]
@@ -85,3 +93,26 @@
         (.glMatrixMode GLMatrixFunc/GL_MODELVIEW)
         (.glLoadMatrixd lookat 0))
       [frustum lookat])))
+
+(def blend-modes
+  {:alpha [GL/GL_SRC_ALPHA GL/GL_ONE_MINUS_SRC_ALPHA GL/GL_FUNC_ADD]
+   :add [GL/GL_SRC_ALPHA GL/GL_ONE GL/GL_FUNC_ADD]
+   :sub-alt [GL/GL_DST_COLOR GL/GL_ONE_MINUS_SRC_ALPHA GL/GL_FUNC_ADD]
+   :sub [GL/GL_SRC_ALPHA GL/GL_ONE GL/GL_FUNC_REVERSE_SUBTRACT]})
+
+(defn apply-blend-mode
+  [^GL2 gl id]
+  (let [[blend-src blend-dest blend-eq] (get blend-modes id)]
+    (doto gl
+      (.glEnable GL/GL_BLEND)
+      (.glBlendFunc blend-src blend-dest)
+      (.glBlendEquation blend-eq))))
+
+(defn draw-origin
+  [^GL2 gl len]
+  (.glBegin gl GL2/GL_LINES)
+  (doseq[[^double r ^double g ^double b] [[1 0 0] [0 1 0] [0 0 1]]]
+    (.glColor3d gl r g b)
+    (.glVertex3d gl 0 0 0)
+    (.glVertex3d gl (* r len) (* g len) (* b len)))
+  (.glEnd gl))
