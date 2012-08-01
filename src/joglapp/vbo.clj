@@ -1,12 +1,14 @@
 (ns joglapp.vbo
   (:import
-    (javax.media.opengl GL GL2)
-    (com.jogamp.common.nio Buffers)
-    (java.nio FloatBuffer)))
+    [javax.media.opengl GL GL2]
+    [com.jogamp.common.nio Buffers]
+    [java.nio FloatBuffer]))
 
 (defn update-buffer
   [^GL2 gl id data dynamic?]
-  (let [fbuf (FloatBuffer/wrap (float-array data))
+  (let [^FloatBuffer fbuf (if (instance? FloatBuffer data)
+               data
+               (FloatBuffer/wrap (float-array data)))
         _ (.rewind fbuf)
         count (.remaining fbuf)
         size (* count Buffers/SIZEOF_FLOAT)]
