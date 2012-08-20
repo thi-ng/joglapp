@@ -4,3 +4,4 @@ lib
 native
 target
 *.jar
+classes
