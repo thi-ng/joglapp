@@ -1,23 +1,28 @@
 (ns joglapp.events
-	(:import
-		(java.awt Component)
-		(java.awt.event KeyAdapter KeyEvent
-                  MouseAdapter MouseEvent
-                  MouseWheelListener MouseWheelEvent)))
+  (:import
+    [java.awt Component]
+    [java.awt.event KeyAdapter KeyEvent
+     MouseAdapter MouseEvent
+     MouseWheelListener MouseWheelEvent])
+  (:require
+    [joglapp.utils :as utils]))
 
 (defn make-mouse-state [] (atom {:x 0 :y 0 :buttons #{}}))
 
 (defn mouse-moved
-  [{:keys[x y]} state]
-  (swap! state assoc :x x :y y))
+  [^MouseEvent e state]
+  (let [{:keys[x y]} (utils/select-bean-props e :x :y)]
+    (swap! state assoc :x x :y y)))
 
 (defn mouse-pressed
-	[{:keys[x y button]} state]
-	(swap! state assoc :x x :y y :buttons (conj (:buttons @state) (get [:left :middle :right] (dec button)))))
+  [^MouseEvent e state]
+  (let [{:keys[x y button]} (utils/select-bean-props e :x :y :button)]
+    (swap! state assoc :x x :y y :buttons (conj (:buttons @state) (get [:left :middle :right] (dec button))))))
 
 (defn mouse-released
-	[{:keys[x y button]} state]
-	(swap! state assoc :x x :y y :buttons (disj (:buttons @state) (get [:left :middle :right] (dec button)))))
+  [^MouseEvent e state]
+  (let [{:keys[x y button]} (utils/select-bean-props e :x :y :button)]
+    (swap! state assoc :x x :y y :buttons (disj (:buttons @state) (get [:left :middle :right] (dec button))))))
 
 (defn add-mouselisteners
   [^Component component & state-listeners]
@@ -25,14 +30,14 @@
          :or {state (make-mouse-state)}} (apply hash-map state-listeners)
         motion-proxy (proxy [MouseAdapter] []
                        (mouseMoved [^MouseEvent e]
-                                   (if-not (nil? moved) (moved (bean e) state)))
+                                   (if-not (nil? moved) (moved e state)))
                        (mouseDragged [^MouseEvent e]
-                                     (if-not (nil? dragged) (dragged (bean e) state))))
+                                     (if-not (nil? dragged) (dragged e state))))
         mouse-proxy (proxy [MouseAdapter] []
                       (mousePressed [^MouseEvent e]
-                                    (if-not (nil? pressed) (pressed (bean e) state)))
+                                    (if-not (nil? pressed) (pressed e state)))
                       (mouseReleased [^MouseEvent e]
-                                     (if-not (nil? released) (released (bean e) state))))
+                                     (if-not (nil? released) (released e state))))
         wheel-proxy (proxy [MouseWheelListener] []
                       (mouseWheelMoved [^MouseWheelEvent e]
                                        (wheel (.getWheelRotation e) state)))]
@@ -59,9 +64,9 @@
   (let [{:keys[state pressed released] :or {state (atom {})}} (apply hash-map state-listeners)
         key-proxy (proxy [KeyAdapter] []
                     (keyPressed [^KeyEvent e]
-                                (if-not (nil? pressed) (pressed (bean e) state)))
+                                (if-not (nil? pressed) (pressed e state)))
                     (keyReleased [^KeyEvent e]
-                                 (if-not (nil? released) (released (bean e) state))))]
+                                 (if-not (nil? released) (released e state))))]
     (.addKeyListener component key-proxy)
     (swap! state assoc :key-listener key-proxy)
     state))
