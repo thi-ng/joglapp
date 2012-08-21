@@ -4,10 +4,10 @@
   <groupId>com.postspectacular</groupId>
   <artifactId>joglapp</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>joglapp</name>
-  <description>FIXME: write description</description>
-  <url>http://hg.postspectacular.com/joglui</url>
+  <description>Basic app skeleton &amp; utilities for rapid prototyping w/ Clojure and JOGL2</description>
+  <url>http://hg.postspectacular.com/joglapp</url>
   <licenses>
     <license>
       <name>Eclipse Public License</name>
@@ -104,7 +104,7 @@
     <dependency>
       <groupId>org.toxiclibs</groupId>
       <artifactId>toxiclibs-clj</artifactId>
-      <version>0.2.0-SNAPSHOT</version>
+      <version>0.2.1</version>
     </dependency>
   </dependencies>
 </project>
