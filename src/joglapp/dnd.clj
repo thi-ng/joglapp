@@ -1,11 +1,12 @@
 (ns joglapp.dnd
   (:import
-    [java.awt.dnd DropTarget DropTargetListener DropTargetAdapter DropTargetDragEvent DropTargetDropEvent DnDConstants]
+    [java.awt.dnd DropTarget DropTargetListener DropTargetAdapter
+     DropTargetDragEvent DropTargetDropEvent DnDConstants]
     [java.awt.datatransfer Transferable DataFlavor UnsupportedFlavorException]))
 
 (defn add-dndlistener
   [component & listeners]
-  (let[{:keys[drop enter exit over action-changed]} (apply hash-map listeners)]
+  (let [{:keys [drop enter exit over action-changed]} (apply hash-map listeners)]
     (DropTarget.
       component
       (proxy [DropTargetAdapter] []
@@ -22,10 +23,10 @@
     (let [tx (.getTransferable e)]
       (try
         (.acceptDrop e DnDConstants/ACTION_MOVE)
-        (let[paths (.getTransferData tx DataFlavor/javaFileListFlavor)]
-          (doseq[[rexp handler] handlers]
-            (let[matching (filter #(re-find rexp (.getName %)) paths)]
+        (let [paths (.getTransferData tx DataFlavor/javaFileListFlavor)]
+          (doseq [[rexp handler] handlers]
+            (let [matching (filter #(re-find rexp (.getName ^java.io.File %)) paths)]
               (when-not (nil? (seq matching))
-                (doseq[p matching] (prn "matching file:" p))
+                (doseq [p matching] (prn "matching file:" p))
                 (handler matching)))))
           (catch UnsupportedFlavorException e (.printStackTrace e))))))

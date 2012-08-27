@@ -1,18 +1,20 @@
 (ns joglapp.core
   (:import
-		[javax.media.opengl GL GL2 GLProfile GLCapabilities GLEventListener GLAutoDrawable DefaultGLCapabilitiesChooser]
-		[javax.media.opengl.awt GLCanvas]
-		[javax.media.opengl.fixedfunc GLMatrixFunc]
-		[com.jogamp.opengl.util FPSAnimator]
-		[com.jogamp.opengl.util.awt Screenshot TextRenderer]
+    [javax.media.opengl GL GL2 GLProfile GLCapabilities GLEventListener
+     GLAutoDrawable DefaultGLCapabilitiesChooser]
+    [javax.media.opengl.awt GLCanvas]
+    [javax.media.opengl.fixedfunc GLMatrixFunc]
+    [com.jogamp.opengl.util FPSAnimator]
+    [com.jogamp.opengl.util.awt Screenshot TextRenderer]
     [com.jogamp.opengl.util.texture Texture]
     [com.jogamp.opengl.util.texture.awt AWTTextureIO]
-		[java.awt Frame Font])
+    [java.awt Frame Font]
+    [java.awt.image BufferedImage])
   (:require
     [toxi.math.core :as math]
     [toxi.math.matrix4x4 :as mat4]))
 
-(defn ^GLAutoDrawable make-canvas
+(defn ^GLCanvas make-canvas
   ([]
     (make-canvas GLProfile/GL2))
   ([profile]
@@ -26,28 +28,28 @@
 
 (defn ^Frame make-frame
   [& opts]
-  (let[{:keys[title width height chrome canvas]
+  (let [{:keys [title width height chrome canvas]
         :or {title "joglapp" width 1280 height 720 chrome true}} (apply hash-map opts)
-       frame (Frame. title)]
+       frame (Frame. ^String title)]
     (.setSize frame width height)
-    (.add frame canvas)
+    (.add frame ^GLCanvas canvas)
     (when-not chrome (.setUndecorated frame true))
     (.show frame)
     frame))
 
 (defn ^Texture make-image-texture
-  ([img]
+  ([^BufferedImage img]
     (make-image-texture img GLProfile/GL2))
-  ([img glprofile]
+  ([^BufferedImage img glprofile]
     (AWTTextureIO/newTexture (GLProfile/get glprofile) img false)))
 
 (defn setup
   [& more]
-  (let [{:keys[canvas frame width height fps init dispose display reshape]
+  (let [{:keys [canvas frame width height fps init dispose display reshape]
          :or {fps 60}} (apply hash-map more)
-        ^GLAutoDrawable canvas (if (nil? canvas) (make-canvas GLProfile/GL2) canvas)
+        ^GLCanvas canvas (if (nil? canvas) (make-canvas GLProfile/GL2) canvas)
         frame (if (nil? frame) (make-frame :width width :height height) frame)
-        anim (FPSAnimator. canvas fps)
+        anim (FPSAnimator. canvas (int fps))
         t0 (System/currentTimeMillis)]
     (.addGLEventListener canvas
       (proxy [GLEventListener] []
@@ -83,7 +85,7 @@
   ([^GLAutoDrawable drawable]
     (view-ortho2d drawable (mat4/->array mat4/M4X4-IDENTITY)))
   ([^GLAutoDrawable drawable lookat]
-    (let[^GL2 gl (.. drawable getGL getGL2)
+    (let [^GL2 gl (.. drawable getGL getGL2)
          w (.getWidth drawable)
          h (.getHeight drawable)
          frustum (-> (mat4/ortho 0 0 w h -1 1) math/matrix-transpose mat4/->array)]
@@ -111,7 +113,7 @@
 (defn draw-origin
   [^GL2 gl len]
   (.glBegin gl GL2/GL_LINES)
-  (doseq[[^double r ^double g ^double b] [[1 0 0] [0 1 0] [0 0 1]]]
+  (doseq [[^double r ^double g ^double b] [[1 0 0] [0 1 0] [0 0 1]]]
     (.glColor3d gl r g b)
     (.glVertex3d gl 0 0 0)
     (.glVertex3d gl (* r len) (* g len) (* b len)))

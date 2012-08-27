@@ -2,8 +2,8 @@
 
 (defn select-bean-props
   [obj & props]
-  (let[props (apply hash-set props)
-       c (.getClass obj)]
+  (let [props (apply hash-set props)
+       c (.getClass ^Object obj)]
     (reduce (fn [m ^java.beans.PropertyDescriptor pd]
               (let [name (keyword (.getName pd))
                     method (.getReadMethod pd)]
