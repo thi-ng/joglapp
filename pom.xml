@@ -4,7 +4,7 @@
   <groupId>com.postspectacular</groupId>
   <artifactId>joglapp</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>joglapp</name>
   <description>Basic app skeleton &amp; utilities for rapid prototyping w/ Clojure and JOGL2</description>
   <url>http://hg.postspectacular.com/joglapp</url>
@@ -65,6 +65,16 @@
       </releases>
     </repository>
     <repository>
+      <id>local-3rd</id>
+      <url>http://localhost:8089/nexus/content/repositories/thirdparty/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
       <id>nexus-3rd</id>
       <url>http://50.17.220.26:8089/nexus/content/repositories/thirdparty/</url>
       <snapshots>
@@ -94,12 +104,14 @@
     <dependency>
       <groupId>com.jogamp</groupId>
       <artifactId>gluegen-rt</artifactId>
-      <version>20120617</version>
+      <version>2.0.0</version>
+      <classifier>rc10</classifier>
     </dependency>
     <dependency>
       <groupId>com.jogamp</groupId>
-      <artifactId>jogl2</artifactId>
-      <version>20120617</version>
+      <artifactId>jogl</artifactId>
+      <version>2.0.0</version>
+      <classifier>rc10</classifier>
     </dependency>
     <dependency>
       <groupId>org.toxiclibs</groupId>
