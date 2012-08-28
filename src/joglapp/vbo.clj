@@ -22,22 +22,22 @@
 (defn draw-buffer
   [^GL2 gl id count num stride draw-mode]
   (doto gl
-    (.glBindBuffer GL/GL_ARRAY_BUFFER id)
+    (.glBindBuffer GL/GL_ARRAY_BUFFER (int id))
     (.glEnableClientState GL2/GL_VERTEX_ARRAY)
     (.glVertexPointer (int num) GL/GL_FLOAT (int (* stride Buffers/SIZEOF_FLOAT)) 0)
-    (.glDrawArrays draw-mode 0 count)
+    (.glDrawArrays draw-mode 0 (int count))
     (.glDisableClientState GL2/GL_VERTEX_ARRAY)
     (.glBindBuffer GL/GL_ARRAY_BUFFER 0)))
 
 (defn draw-tex-buffer
   [^GL2 gl id count num stride uvidx draw-mode]
   (doto gl
-    (.glBindBuffer GL/GL_ARRAY_BUFFER id)
+    (.glBindBuffer GL/GL_ARRAY_BUFFER (int id))
     (.glEnableClientState GL2/GL_VERTEX_ARRAY)
     (.glVertexPointer (int num) GL/GL_FLOAT (int (* stride Buffers/SIZEOF_FLOAT)) 0)
     (.glEnableClientState GL2/GL_TEXTURE_COORD_ARRAY)
     (.glTexCoordPointer 2 GL/GL_FLOAT (int (* stride Buffers/SIZEOF_FLOAT)) (int (* uvidx Buffers/SIZEOF_FLOAT)))
-    (.glDrawArrays draw-mode 0 count)
+    (.glDrawArrays draw-mode 0 (int count))
     (.glDisableClientState GL2/GL_TEXTURE_COORD_ARRAY)
     (.glDisableClientState GL2/GL_VERTEX_ARRAY)
     (.glBindBuffer GL/GL_ARRAY_BUFFER 0)))
