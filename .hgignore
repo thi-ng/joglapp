@@ -1,0 +1,9 @@
+syntax: glob
+bin
+lib
+native
+target
+*.jar
+classes
+.settings
+pom.xml.asc
