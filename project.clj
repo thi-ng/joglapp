@@ -1,4 +1,4 @@
-(defproject com.postspectacular/joglapp "0.1.1-SNAPSHOT"
+(defproject com.postspectacular/joglapp "0.1.1"
   :description "Basic app skeleton & utilities for rapid prototyping w/ Clojure and JOGL2"
   :url "http://hg.postspectacular.com/joglapp"
   :license {:name "Eclipse Public License"
