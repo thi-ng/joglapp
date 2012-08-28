@@ -5,3 +5,5 @@ native
 target
 *.jar
 classes
+.settings
+pom.xml.asc
