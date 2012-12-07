@@ -11,8 +11,7 @@
     [java.awt Frame Font]
     [java.awt.image BufferedImage])
   (:require
-    [toxi.math.core :as math]
-    [toxi.math.matrix4x4 :as mat4]))
+    [toxi.math.matrix :as mat]))
 
 (defn ^GLCanvas make-canvas
   ([]
@@ -66,12 +65,9 @@
   ([^GLAutoDrawable drawable fov near far eye target up]
     (view-perspective
       drawable
-      (-> (mat4/perspective fov (/ (.getWidth drawable) (.getHeight drawable)) near far)
-        math/matrix-transpose
-        mat4/->array)
-      (-> (mat4/look-at eye target up)
-        math/matrix-transpose
-        mat4/->array)))
+      (-> (mat/perspective fov (/ (.getWidth drawable) (.getHeight drawable)) near far)
+        mat/transpose double-array)
+      (-> (mat/look-at eye target up) mat/transpose double-array)))
   ([^GLAutoDrawable drawable frustum lookat]
     (doto ^GL2 (.. drawable getGL getGL2)
       (.glViewport 0 0 (.getWidth drawable) (.getHeight drawable))
@@ -83,12 +79,12 @@
 
 (defn view-ortho2d
   ([^GLAutoDrawable drawable]
-    (view-ortho2d drawable (mat4/->array mat4/M4X4-IDENTITY)))
+    (view-ortho2d drawable (double-array mat/IDENTITY)))
   ([^GLAutoDrawable drawable lookat]
     (let [^GL2 gl (.. drawable getGL getGL2)
          w (.getWidth drawable)
          h (.getHeight drawable)
-         frustum (-> (mat4/ortho 0 0 w h -1 1) math/matrix-transpose mat4/->array)]
+         frustum (-> (mat/ortho 0 0 w h -1 1) mat/transpose double-array)]
       (doto gl
         (.glMatrixMode GLMatrixFunc/GL_PROJECTION)
         (.glLoadMatrixd frustum 0)

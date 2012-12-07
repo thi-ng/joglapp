@@ -4,7 +4,7 @@
   <groupId>com.postspectacular</groupId>
   <artifactId>joglapp</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.1</version>
+  <version>0.1.2-SNAPSHOT</version>
   <name>joglapp</name>
   <description>Basic app skeleton &amp; utilities for rapid prototyping w/ Clojure and JOGL2</description>
   <url>http://hg.postspectacular.com/joglapp</url>
@@ -114,9 +114,27 @@
       <classifier>rc10</classifier>
     </dependency>
     <dependency>
-      <groupId>org.toxiclibs</groupId>
-      <artifactId>toxiclibs-clj</artifactId>
-      <version>0.2.1</version>
+      <groupId>com.postspectacular</groupId>
+      <artifactId>toxi2</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>test.generative</artifactId>
+      <version>0.1.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.postspectacular</groupId>
+      <artifactId>macrochrono</artifactId>
+      <version>0.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>quil</groupId>
+      <artifactId>quil</artifactId>
+      <version>1.6.0</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
