@@ -1,11 +1,11 @@
-(defproject com.postspectacular/joglapp "0.1.2.1"
+(defproject com.postspectacular/joglapp "0.1.3-SNAPSHOT"
   :description "Basic app skeleton & utilities for rapid prototyping w/ Clojure and JOGL2"
   :url "http://hg.postspectacular.com/joglapp"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [org.clojars.toxi/gluegen-rt "2.0.0-rc10"]
-                 [org.clojars.toxi/jogl "2.0.0-rc10"]
+                 [org.clojars.toxi/gluegen-rt "2.0.0-rc11"]
+                 [org.clojars.toxi/jogl "2.0.0-rc11"]
                  ;[com.jogamp/gluegen-rt "2.0.0" :classifier "rc10"]
                  ;[com.jogamp/jogl "2.0.0" :classifier "rc10"]
                  [com.postspectacular/toxi2 "0.1.1"]]
