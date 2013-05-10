@@ -27,10 +27,11 @@
 
 (defn ^Frame make-frame
   [& opts]
-  (let [{:keys [title width height chrome canvas]
+  (let [{:keys [title width height chrome canvas resizable]
         :or {title "joglapp" width 1280 height 720 chrome true}} (apply hash-map opts)
        frame (Frame. ^String title)]
     (.setSize frame width height)
+    (.setResizable frame (if-not (nil? resizable) resizable true))
     (.add frame ^GLCanvas canvas)
     (when-not chrome (.setUndecorated frame true))
     (.show frame)
